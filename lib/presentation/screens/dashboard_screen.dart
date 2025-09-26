@@ -96,23 +96,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 24),
             _buildUnlockMetricsBanner(),
             const SizedBox(height: 24),
+             CarouselSlider(
+              options: CarouselOptions(
+                height: 300.0,
+                enlargeCenterPage: true,
+                autoPlay: false,
+                aspectRatio: 16 / 9,
+                enableInfiniteScroll: false,
+                viewportFraction: 0.8,
+              ),
+              items: _buckets.map((bucket) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return AllBucketsCard(bucket: bucket);
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 24),
             const Text(
               'All Buckets',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            GridView.builder(
+            ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 400,
-                childAspectRatio: 3 / 2,
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
-              ),
               itemCount: _buckets.length,
               itemBuilder: (context, index) {
-                return BucketCard(bucket: _buckets[index]);
+                return BucketListItem(bucket: _buckets[index]);
               },
             ),
           ],
