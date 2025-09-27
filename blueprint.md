@@ -31,6 +31,7 @@ The application uses the following fonts from `google_fonts`:
 ### Dashboard
 
 - A dashboard screen that displays a list of investment buckets.
+- A stylish, fixed header (`AppBar`) with a gradient background that adapts to light and dark modes.
 - Each bucket is represented by a `BucketCard` widget.
 - Users can create new buckets by tapping the floating action button.
 
@@ -41,15 +42,21 @@ The application uses the following fonts from `google_fonts`:
 
 ### Create Bucket
 
-- A screen that allows users to create a new investment bucket.
-- It includes a form to enter the bucket name, description, and target amount.
+- A stylish and comprehensive screen for creating a new investment bucket.
+- The form is organized into logical sections: "Bucket Information", "Configuration", "Stocks & Allocation", and "Holdings Distribution".
+- All fields are validated with clear error messages, and required fields are marked with an asterisk (*).
+- Includes fields for bucket name, strategy, manager, rationale, minimum investment, rebalance frequency, rebalance dates, and volatility.
+- Dynamically add and remove stock and holding allocation fields.
 
-## Current Task: Implement navigation from Welcome Screen to Dashboard
+## Current Task: Implement a Comprehensive "Create Bucket" Screen
 
 ### Plan
 
-1.  **Update `welcome_screen.dart`:**
-    *   Add a "Skip" button to the top right of the screen.
-    *   Implement a `_navigateToDashboard` function that uses `Navigator.of(context).pushReplacement` to navigate to the `DashboardScreen`.
-    *   Call `_navigateToDashboard` when the "Get Started" or "Skip" button is pressed.
-2.  **Update `blueprint.md`:** Reflect the changes made to the welcome screen.
+1.  **Update `create_bucket_screen.dart`:**
+    *   Implemented a `Form` with a `GlobalKey` for validation.
+    *   Added `TextFormField` widgets for all text-based fields from the `Bucket` model.
+    *   Included a `DropdownButtonFormField` for rebalance frequency, `DatePicker` for rebalance dates, and a `Slider` for volatility.
+    *   Created dynamic sections for adding/removing stocks and holdings, each with its own form validation.
+    *   Styled all form fields for a modern and consistent look, with icons and custom borders.
+    *   Implemented the `_saveBucket` function to validate all forms and create a `Bucket` object.
+2.  **Update `blueprint.md`:** Reflect the implementation of the comprehensive "Create Bucket" screen.

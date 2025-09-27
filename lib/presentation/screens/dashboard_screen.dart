@@ -2,7 +2,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:tradetitan/data/bucket_data.dart';
 import 'package:tradetitan/domain/bucket.dart';
-import 'package:tradetitan/presentation/screens/bucket_detail_screen.dart';
 import 'package:tradetitan/presentation/screens/create_bucket_screen.dart';
 import 'package:tradetitan/presentation/widgets/bucket_card.dart';
 import 'package:provider/provider.dart';
@@ -40,22 +39,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Buckets'),
+        title: const Text(
+          'All Buckets',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDarkMode
+                  ? [Colors.grey[850]!, Colors.grey[900]!]
+                  : [Colors.deepPurple, Colors.purpleAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(
-              themeProvider.themeMode == ThemeMode.dark
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
+              isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              color: Colors.white,
             ),
             onPressed: () => themeProvider.toggleTheme(),
             tooltip: 'Toggle Theme',
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: _refreshBuckets,
           ),
         ],
