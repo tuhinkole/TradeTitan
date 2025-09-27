@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glassmorphism/glassmorphism.dart';
 import 'package:tradetitan/domain/bucket.dart';
 import 'package:tradetitan/presentation/screens/bucket_detail_screen.dart';
 
@@ -25,8 +26,30 @@ class BucketCard extends StatelessWidget {
           ),
         );
       },
-      child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: GlassmorphicContainer(
+        width: double.infinity,
+        height: 200,
+        borderRadius: 12,
+        blur: 10,
+        alignment: Alignment.center,
+        border: 2,
+        linearGradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.surface.withOpacity(0.1),
+            Theme.of(context).colorScheme.surface.withOpacity(0.2),
+          ],
+          stops: const [0.1, 1],
+        ),
+        borderGradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+          ],
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -58,7 +81,7 @@ class BucketCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const Spacer(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

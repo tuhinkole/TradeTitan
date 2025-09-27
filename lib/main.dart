@@ -1,8 +1,9 @@
+
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // Import GoogleFonts
 import 'package:provider/provider.dart'; // Import Provider
-import 'package:tradetitan/presentation/screens/dashboard_screen.dart';
+import 'package:tradetitan/presentation/screens/welcome_screen.dart';
 
 void main() {
   runApp(
@@ -95,7 +96,7 @@ class MyApp extends StatelessWidget {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: Color.fromARGB(255, 47, 17, 99),
+          backgroundColor: const Color.fromARGB(255, 47, 17, 99),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           textStyle: GoogleFonts.roboto(
@@ -114,7 +115,7 @@ class MyApp extends StatelessWidget {
           darkTheme: darkTheme,
           themeMode: themeProvider.themeMode,
           debugShowCheckedModeBanner: false, // Remove debug banner
-          home: const DashboardScreen(),
+          home: const WelcomeScreen(),
         );
       },
     );

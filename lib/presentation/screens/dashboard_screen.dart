@@ -96,9 +96,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 24),
             _buildUnlockMetricsBanner(),
             const SizedBox(height: 24),
-             CarouselSlider(
+            CarouselSlider(
               options: CarouselOptions(
-                height: 300.0,
+                height: 220.0,
                 enlargeCenterPage: true,
                 autoPlay: false,
                 aspectRatio: 16 / 9,
@@ -108,7 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               items: _buckets.map((bucket) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return AllBucketsCard(bucket: bucket);
+                    return BucketCard(bucket: bucket);
                   },
                 );
               }).toList(),
@@ -124,7 +124,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _buckets.length,
               itemBuilder: (context, index) {
-                return BucketListItem(bucket: _buckets[index]);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: BucketCard(bucket: _buckets[index]),
+                );
               },
             ),
           ],
@@ -223,7 +226,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 24),
             CarouselSlider(
               options: CarouselOptions(
-                height: 300.0,
+                height: 220.0,
                 enlargeCenterPage: true,
                 autoPlay: false,
                 aspectRatio: 16 / 9,
@@ -233,7 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               items: _buckets.map((bucket) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return AllBucketsCard(bucket: bucket);
+                    return BucketCard(bucket: bucket);
                   },
                 );
               }).toList(),
@@ -251,276 +254,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _buckets.length,
               itemBuilder: (context, index) {
-                return BucketListItem(bucket: _buckets[index]);
+                 return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                  child: BucketCard(bucket: _buckets[index]),
+                );
               },
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-class AllBucketsCard extends StatelessWidget {
-  final Bucket bucket;
-
-  const AllBucketsCard({super.key, required this.bucket});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BucketDetailScreen(bucket: bucket),
-          ),
-        );
-      },
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.show_chart, color: Colors.blue, size: 40),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            bucket.name,
-                            style: Theme.of(context).textTheme.titleLarge,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            bucket.strategy,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Created by ${bucket.manager}',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Chip(
-                      label: Text(_getVolatilityLabel(bucket.volatility)),
-                      backgroundColor: _getVolatilityColor(bucket.volatility),
-                      labelStyle: const TextStyle(color: Colors.white),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Min. Investment',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        Text(
-                          '₹ ${bucket.minInvestment.toStringAsFixed(0)}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  alignment: WrapAlignment.end,
-                  spacing: 8.0,
-                  runSpacing: 4.0,
-                  children: [
-                    OutlinedButton(
-                      onPressed: () {},
-                      child: const Text('See Performance'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                BucketDetailScreen(bucket: bucket),
-                          ),
-                        );
-                      },
-                      child: const Text('View Bucket'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _getVolatilityLabel(double volatility) {
-    if (volatility < 0.3) {
-      return 'Low Volatility';
-    } else if (volatility < 0.6) {
-      return 'Med. Volatility';
-    } else {
-      return 'High Volatility';
-    }
-  }
-
-  Color _getVolatilityColor(double volatility) {
-    if (volatility < 0.3) {
-      return Colors.green;
-    } else if (volatility < 0.6) {
-      return Colors.orange;
-    } else {
-      return Colors.red;
-    }
-  }
-}
-
-class BucketListItem extends StatelessWidget {
-  final Bucket bucket;
-
-  const BucketListItem({super.key, required this.bucket});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BucketDetailScreen(bucket: bucket),
-          ),
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.show_chart, color: Colors.blue, size: 40),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          bucket.name,
-                          style: Theme.of(context).textTheme.titleLarge,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          bucket.strategy,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Created by ${bucket.manager}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Chip(
-                    label: Text(_getVolatilityLabel(bucket.volatility)),
-                    backgroundColor: _getVolatilityColor(bucket.volatility),
-                    labelStyle: const TextStyle(color: Colors.white),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Min. Investment',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      Text(
-                        '₹ ${bucket.minInvestment.toStringAsFixed(0)}',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                alignment: WrapAlignment.end,
-                spacing: 8.0,
-                runSpacing: 4.0,
-                children: [
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: const Text('See Performance'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              BucketDetailScreen(bucket: bucket),
-                        ),
-                      );
-                    },
-                    child: const Text('View Bucket'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _getVolatilityLabel(double volatility) {
-    if (volatility < 0.3) {
-      return 'Low Volatility';
-    } else if (volatility < 0.6) {
-      return 'Med. Volatility';
-    } else {
-      return 'High Volatility';
-    }
-  }
-
-  Color _getVolatilityColor(double volatility) {
-    if (volatility < 0.3) {
-      return Colors.green;
-    } else if (volatility < 0.6) {
-      return Colors.orange;
-    } else {
-      return Colors.red;
-    }
   }
 }
