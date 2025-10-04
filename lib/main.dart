@@ -1,11 +1,17 @@
-
-// lib/main.dart
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import GoogleFonts
-import 'package:provider/provider.dart'; // Import Provider
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:tradetitan/firebase_options.dart';
 import 'package:tradetitan/presentation/screens/welcome_screen.dart';
+import 'package:tradetitan/services/firestore_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirestoreService().uploadInitialData();
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
@@ -21,9 +27,7 @@ class ThemeProvider with ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
 
   void toggleTheme() {
-    _themeMode = _themeMode == ThemeMode.light
-        ? ThemeMode.dark
-        : ThemeMode.light;
+    _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
 }
@@ -37,7 +41,7 @@ class MyApp extends StatelessWidget {
 
     // Define a common TextTheme
     final TextTheme appTextTheme = TextTheme(
-      displayLarge: GoogleFonts.oswald(
+      displayLarge: GoogleFonts.roboto(
         fontSize: 57,
         fontWeight: FontWeight.bold,
       ),

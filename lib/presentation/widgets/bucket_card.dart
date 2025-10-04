@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:tradetitan/domain/bucket.dart';
 import 'package:tradetitan/presentation/screens/bucket_detail_screen.dart';
+import 'package:tradetitan/services/firestore_service.dart';
 
 class BucketCard extends StatelessWidget {
   final Bucket bucket;
+  final FirestoreService _firestoreService = FirestoreService();
 
-  const BucketCard({super.key, required this.bucket});
+  BucketCard({super.key, required this.bucket});
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +81,10 @@ class BucketCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _showDeleteConfirmationDialog(context),
+                  ),
                 ],
               ),
               const Spacer(),
@@ -102,6 +108,40 @@ class BucketCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Bucket'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure you want to delete "${bucket.name}"?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                _firestoreService.deleteBucket(bucket.id!);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

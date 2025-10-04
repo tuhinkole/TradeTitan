@@ -57,7 +57,7 @@ class BucketDetailScreen extends StatelessWidget {
                       ],
                     ),
                     SizedBox(
-                      height: 800, // Adjust height as needed
+                      height: 1000, // Adjust height as needed
                       child: TabBarView(
                         children: [
                           _buildOverviewTab(context),
@@ -143,7 +143,7 @@ class BucketDetailScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            SizedBox(height: 200, child: _buildLineChart()),
+            SizedBox(height: 300, child: _buildLineChart(context)),
             const SizedBox(height: 32),
             Card(
               elevation: 2,
@@ -222,12 +222,77 @@ class BucketDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLineChart() {
+  Widget _buildLineChart(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    final line1Color = isDarkMode ? Colors.cyanAccent : Colors.blue;
+    final line2Color = isDarkMode ? Colors.yellowAccent : Colors.orange;
+
     return LineChart(
       LineChartData(
-        gridData: const FlGridData(show: false),
-        titlesData: const FlTitlesData(show: false),
-        borderData: FlBorderData(show: false),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          horizontalInterval: 50,
+          verticalInterval: 1,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: theme.dividerColor.withOpacity(0.1),
+              strokeWidth: 1,
+            );
+          },
+          getDrawingVerticalLine: (value) {
+            return FlLine(
+              color: theme.dividerColor.withOpacity(0.1),
+              strokeWidth: 1,
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              interval: 1,
+              getTitlesWidget: (value, meta) {
+                const style = TextStyle(fontSize: 12);
+                switch (value.toInt()) {
+                  case 0:
+                    return const Text('2018', style: style);
+                  case 2:
+                    return const Text('2020', style: style);
+                  case 4:
+                    return const Text('2022', style: style);
+                  case 6:
+                    return const Text('2024', style: style);
+                  default:
+                    return const Text('', style: style);
+                }
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (value, meta) {
+                return Text('${value.toInt()}', style: const TextStyle(fontSize: 12));
+              },
+            ),
+          ),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: theme.dividerColor, width: 1),
+        ),
+        minX: 0,
+        maxX: 6,
+        minY: 50,
+        maxY: 250,
         lineBarsData: [
           LineChartBarData(
             spots: const [
@@ -240,11 +305,14 @@ class BucketDetailScreen extends StatelessWidget {
               FlSpot(6, 101.3),
             ],
             isCurved: true,
-            color: Colors.blue,
-            barWidth: 3,
+            color: line1Color,
+            barWidth: 4,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: line1Color.withOpacity(0.2),
+            ),
           ),
           LineChartBarData(
             spots: const [
@@ -257,11 +325,14 @@ class BucketDetailScreen extends StatelessWidget {
               FlSpot(6, 102.8),
             ],
             isCurved: true,
-            color: Colors.orange,
-            barWidth: 3,
+            color: line2Color,
+            barWidth: 4,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: line2Color.withOpacity(0.2),
+            ),
           ),
         ],
       ),

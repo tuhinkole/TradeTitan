@@ -1,11 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:tradetitan/data/bucket_data.dart';
 import 'package:tradetitan/domain/bucket.dart';
 import 'package:tradetitan/presentation/screens/create_bucket_screen.dart';
 import 'package:tradetitan/presentation/widgets/bucket_card.dart';
 import 'package:provider/provider.dart';
 import 'package:tradetitan/main.dart';
+import 'package:tradetitan/services/firestore_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,25 +15,10 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  late List<Bucket> _buckets;
+  final FirestoreService _firestoreService = FirestoreService();
 
-  @override
-  void initState() {
-    super.initState();
-    _buckets = initialBuckets;
-  }
-
-  void _addBucket(Bucket bucket) {
-    setState(() {
-      _buckets.add(bucket);
-    });
-  }
-
-  Future<void> _refreshBuckets() async {
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      _buckets = initialBuckets;
-    });
+  Future<void> _addBucket(Bucket bucket) async {
+    await _firestoreService.addBucket(bucket);
   }
 
   @override
@@ -72,19 +57,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onPressed: () => themeProvider.toggleTheme(),
             tooltip: 'Toggle Theme',
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _refreshBuckets,
-          ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 600) {
-            return _buildWebLayout();
-          } else {
-            return _buildMobileLayout();
+      body: StreamBuilder<List<Bucket>>(
+        stream: _firestoreService.getBuckets(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final buckets = snapshot.data ?? [];
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 600) {
+                return _buildWebLayout(buckets);
+              } else {
+                return _buildMobileLayout(buckets);
+              }
+            },
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -95,7 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
 
           if (newBucket != null) {
-            _addBucket(newBucket);
+            await _addBucket(newBucket);
           }
         },
         child: const Icon(Icons.add),
@@ -103,7 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildWebLayout() {
+  Widget _buildWebLayout(List<Bucket> buckets) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -123,7 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 enableInfiniteScroll: false,
                 viewportFraction: 0.8,
               ),
-              items: _buckets.map((bucket) {
+              items: buckets.map((bucket) {
                 return Builder(
                   builder: (BuildContext context) {
                     return BucketCard(bucket: bucket);
@@ -140,11 +133,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _buckets.length,
+              itemCount: buckets.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: BucketCard(bucket: _buckets[index]),
+                  child: BucketCard(bucket: buckets[index]),
                 );
               },
             ),
@@ -224,62 +217,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMobileLayout() {
-    return RefreshIndicator(
-      onRefresh: _refreshBuckets,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _buildMostInvestedHeader(),
+  Widget _buildMobileLayout(List<Bucket> buckets) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _buildMostInvestedHeader(),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _buildUnlockMetricsBanner(),
+          ),
+          const SizedBox(height: 24),
+          CarouselSlider(
+            options: CarouselOptions(
+              height: 220.0,
+              enlargeCenterPage: true,
+              autoPlay: false,
+              aspectRatio: 16 / 9,
+              enableInfiniteScroll: false,
+              viewportFraction: 0.8,
             ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _buildUnlockMetricsBanner(),
+            items: buckets.map((bucket) {
+              return Builder(
+                builder: (BuildContext context) {
+                  return BucketCard(bucket: bucket);
+                },
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 24),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'All Buckets',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 24),
-            CarouselSlider(
-              options: CarouselOptions(
-                height: 220.0,
-                enlargeCenterPage: true,
-                autoPlay: false,
-                aspectRatio: 16 / 9,
-                enableInfiniteScroll: false,
-                viewportFraction: 0.8,
-              ),
-              items: _buckets.map((bucket) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return BucketCard(bucket: bucket);
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'All Buckets',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _buckets.length,
-              itemBuilder: (context, index) {
-                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-                  child: BucketCard(bucket: _buckets[index]),
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: buckets.length,
+            itemBuilder: (context, index) {
+               return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                child: BucketCard(bucket: buckets[index]),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

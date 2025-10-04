@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tradetitan/domain/bucket.dart';
+import 'package:tradetitan/services/firestore_service.dart';
 
 class CreateBucketScreen extends StatefulWidget {
   const CreateBucketScreen({super.key});
@@ -11,6 +12,7 @@ class CreateBucketScreen extends StatefulWidget {
 
 class _CreateBucketScreenState extends State<CreateBucketScreen> {
   final _formKey = GlobalKey<FormState>();
+  final FirestoreService _firestoreService = FirestoreService();
 
   // Text Controllers
   final _nameController = TextEditingController();
@@ -47,7 +49,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
     super.dispose();
   }
 
-  void _saveBucket() {
+  Future<void> _saveBucket() async {
     if (_formKey.currentState!.validate()) {
       // Validate all dynamic stock forms
       bool allStocksValid = _stockFields.every(
@@ -96,7 +98,9 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
           holdingsDistribution: holdingsDistribution,
           returns: {}, // Typically calculated, not set on creation
         );
-        Navigator.pop(context, newBucket);
+
+        await _firestoreService.addBucket(newBucket);
+        Navigator.pop(context);
       }
     }
   }
