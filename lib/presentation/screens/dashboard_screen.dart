@@ -2,6 +2,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:tradetitan/domain/bucket.dart';
 import 'package:tradetitan/presentation/screens/create_bucket_screen.dart';
+import 'package:tradetitan/presentation/screens/info_screen.dart';
+import 'package:tradetitan/presentation/screens/profile_screen.dart';
 import 'package:tradetitan/presentation/widgets/bucket_card.dart';
 import 'package:provider/provider.dart';
 import 'package:tradetitan/main.dart';
@@ -92,6 +94,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
         },
         child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.person_outline),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const InfoScreen()),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
