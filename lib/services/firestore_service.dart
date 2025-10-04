@@ -10,13 +10,13 @@ class FirestoreService {
     final snapshot = await _bucketsCollection.limit(1).get();
     if (snapshot.docs.isEmpty) {
       for (final bucket in initialBuckets) {
-        await _bucketsCollection.add(bucket.toDocument());
+        await _bucketsCollection.add(bucket.toMap()); // Corrected from toDocument
       }
     }
   }
 
   Future<void> addBucket(Bucket bucket) {
-    return _bucketsCollection.add(bucket.toDocument());
+    return _bucketsCollection.add(bucket.toMap()); // Corrected from toDocument
   }
 
   Stream<List<Bucket>> getBuckets() {
@@ -26,7 +26,7 @@ class FirestoreService {
   }
 
   Future<void> updateBucket(Bucket bucket) {
-    return _bucketsCollection.doc(bucket.id).update(bucket.toDocument());
+    return _bucketsCollection.doc(bucket.id).update(bucket.toMap()); // Corrected from toDocument
   }
 
   Future<void> deleteBucket(String bucketId) {
