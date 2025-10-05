@@ -4,14 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:tradetitan/firebase_options.dart';
 import 'package:tradetitan/presentation/screens/welcome_screen.dart';
-import 'package:tradetitan/services/firestore_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await FirestoreService().uploadInitialData();
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),

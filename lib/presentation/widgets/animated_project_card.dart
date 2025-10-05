@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class AnimatedProjectCard extends StatefulWidget {
   final Color color;
@@ -74,7 +72,7 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withAlpha(77),
                 spreadRadius: 2,
                 blurRadius: 10,
                 offset: const Offset(0, 5),
@@ -89,7 +87,7 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: widget.color.withOpacity(0.2),
+                    color: widget.color.withAlpha(51),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(widget.icon, color: widget.color),

@@ -38,13 +38,13 @@ class BucketCard extends StatelessWidget {
           ),
         );
       },
-      child: Container(
+      child: SizedBox(
         height: 250, // Fixed height to prevent layout jumps
         child: Card(
           clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           elevation: 8,
-          shadowColor: theme.colorScheme.primary.withOpacity(isDarkMode ? 0.7 : 0.4),
+          shadowColor: theme.colorScheme.primary.withAlpha(isDarkMode ? 178 : 102),
           child: Stack(
             children: [
               // --- Background Gradient --- //
@@ -53,7 +53,7 @@ class BucketCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: isDarkMode
-                          ? [theme.colorScheme.primary.withOpacity(0.6), Colors.black87]
+                          ? [theme.colorScheme.primary.withAlpha(153), Colors.black87]
                           : [theme.colorScheme.primary, theme.colorScheme.secondary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -78,10 +78,10 @@ class BucketCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withAlpha(38),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.business_center, color: Colors.white, size: 28),
+                            child: const Icon(Icons.business_center, color: Colors.white, size: 28),
                           ),
                           const SizedBox(width: 12),
                           Flexible(
@@ -181,7 +181,7 @@ class BucketCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.amber.withOpacity(0.8),
+                        color: Colors.amber.withAlpha(204),
                         blurRadius: 18,
                         spreadRadius: 3,
                       ),

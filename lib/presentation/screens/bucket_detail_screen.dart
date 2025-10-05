@@ -14,63 +14,75 @@ class BucketDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: Text(bucket.name)),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 200.0,
+            backgroundColor: isDarkMode ? Colors.grey[900] : Colors.deepPurple,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(bucket.name, style: const TextStyle(color: Colors.white)),
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isDarkMode
+                        ? [Colors.grey[850]!, Colors.grey[900]!]
+                        : [Colors.deepPurple, Colors.purpleAccent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.show_chart, size: 60, color: Colors.white),
+                      const SizedBox(height: 16),
+                      Text(
+                        bucket.strategy,
+                        style: theme.textTheme.titleMedium?.copyWith(color: Colors.white),
+                      ),
+                      Text(
+                        'Managed by ${bucket.manager}',
+                        style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: DefaultTabController(
+              length: 2,
+              child: Column(
                 children: [
-                  const Icon(Icons.show_chart, size: 60),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  const TabBar(
+                    tabs: [
+                      Tab(text: 'Overview'),
+                      Tab(text: 'Stocks & Weights'),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 1200, // Adjust height as needed
+                    child: TabBarView(
                       children: [
-                        Text(
-                          bucket.name,
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        Text('Managed by ${bucket.manager}'),
+                        _buildOverviewTab(context),
+                        _buildStocksAndWeightsTab(context),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                bucket.strategy,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 24),
-              DefaultTabController(
-                length: 2,
-                child: Column(
-                  children: [
-                    const TabBar(
-                      tabs: [
-                        Tab(text: 'Overview'),
-                        Tab(text: 'Stocks & Weights'),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 1000, // Adjust height as needed
-                      child: TabBarView(
-                        children: [
-                          _buildOverviewTab(context),
-                          _buildStocksAndWeightsTab(context),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -82,60 +94,60 @@ class BucketDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'About the Bucket',
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'About the Bucket',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(bucket.rationale),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () {},
+                      child: const Text(
+                        'Read more',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(bucket.rationale),
-                      const SizedBox(height: 16),
-                      InkWell(
-                        onTap: () {},
-                        child: const Text(
-                          'Read more',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 24),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInfoTile(
-                        context,
-                        Icons.bar_chart,
-                        'Methodology',
-                        'Know how this bucket was created',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoTile(
-                        context,
-                        Icons.article,
-                        'Factsheet',
-                        'Download key points of this bucket',
-                      ),
-                    ],
-                  ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    _buildInfoTile(
+                      context,
+                      Icons.bar_chart,
+                      'Methodology',
+                      'Know how this bucket was created',
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInfoTile(
+                      context,
+                      Icons.article,
+                      'Factsheet',
+                      'Download key points of this bucket',
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 32),
             const Text(
@@ -238,13 +250,13 @@ class BucketDetailScreen extends StatelessWidget {
           verticalInterval: 1,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: theme.dividerColor.withOpacity(0.1),
+              color: theme.dividerColor.withAlpha(25),
               strokeWidth: 1,
             );
           },
           getDrawingVerticalLine: (value) {
             return FlLine(
-              color: theme.dividerColor.withOpacity(0.1),
+              color: theme.dividerColor.withAlpha(25),
               strokeWidth: 1,
             );
           },
@@ -297,12 +309,12 @@ class BucketDetailScreen extends StatelessWidget {
           LineChartBarData(
             spots: const [
               FlSpot(0, 100),
-              FlSpot(1, 100.5),
-              FlSpot(2, 101),
-              FlSpot(3, 100.8),
-              FlSpot(4, 101.2),
-              FlSpot(5, 101.5),
-              FlSpot(6, 101.3),
+              FlSpot(1, 120),
+              FlSpot(2, 150),
+              FlSpot(3, 130),
+              FlSpot(4, 180),
+              FlSpot(5, 200),
+              FlSpot(6, 230),
             ],
             isCurved: true,
             color: line1Color,
@@ -311,18 +323,18 @@ class BucketDetailScreen extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: line1Color.withOpacity(0.2),
+              color: line1Color.withAlpha(51),
             ),
           ),
           LineChartBarData(
             spots: const [
               FlSpot(0, 100),
-              FlSpot(1, 101.2),
-              FlSpot(2, 101.8),
-              FlSpot(3, 101.5),
-              FlSpot(4, 102.2),
-              FlSpot(5, 102.5),
-              FlSpot(6, 102.8),
+              FlSpot(1, 110),
+              FlSpot(2, 120),
+              FlSpot(3, 115),
+              FlSpot(4, 130),
+              FlSpot(5, 140),
+              FlSpot(6, 150),
             ],
             isCurved: true,
             color: line2Color,
@@ -331,7 +343,7 @@ class BucketDetailScreen extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: line2Color.withOpacity(0.2),
+              color: line2Color.withAlpha(51),
             ),
           ),
         ],
@@ -346,34 +358,45 @@ class BucketDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'At a Glance',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildGlanceInfo('Stocks', bucket.stockCount.toString()),
-                _buildGlanceInfo(
-                  'Rebalance Frequency',
-                  bucket.rebalanceFrequency,
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'At a Glance',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildGlanceInfo('Stocks', bucket.stockCount.toString()),
+                        _buildGlanceInfo(
+                          'Rebalance Frequency',
+                          bucket.rebalanceFrequency,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildGlanceInfo(
+                          'Last Rebalance',
+                          _formatDate(bucket.lastRebalance),
+                        ),
+                        _buildGlanceInfo(
+                          'Next Rebalance',
+                          _formatDate(bucket.nextRebalance),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildGlanceInfo(
-                  'Last Rebalance',
-                  _formatDate(bucket.lastRebalance),
-                ),
-                _buildGlanceInfo(
-                  'Next Rebalance',
-                  _formatDate(bucket.nextRebalance),
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -409,36 +432,49 @@ class BucketDetailScreen extends StatelessWidget {
   }
 
   Widget _buildHoldingsDistribution(BuildContext context) {
-    final colors = [Colors.blue, Colors.purple, Colors.orange];
+    final colors = [Colors.blue, Colors.purple, Colors.orange, Colors.green, Colors.red];
     final holdings = bucket.holdingsDistribution.entries.toList();
-    return Column(
-      children: [
-        Row(
-          children: List.generate(holdings.length, (index) {
-            return Expanded(
-              flex: (holdings[index].value * 100).toInt(),
-              child: Container(height: 20, color: colors[index]),
-            );
-          }),
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              children: List.generate(holdings.length, (index) {
+                return Expanded(
+                  flex: (holdings[index].value * 100).toInt(),
+                  child: Container(
+                    height: 20,
+                    color: colors[index % colors.length],
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              children: List.generate(holdings.length, (index) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      color: colors[index % colors.length],
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${holdings[index].key} ${(holdings[index].value * 100).toStringAsFixed(2)}%',
+                    ),
+                  ],
+                );
+              }),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 16,
-          runSpacing: 8,
-          children: List.generate(holdings.length, (index) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(width: 10, height: 10, color: colors[index]),
-                const SizedBox(width: 4),
-                Text(
-                  '${holdings[index].key} ${(holdings[index].value * 100).toStringAsFixed(2)}%',
-                ),
-              ],
-            );
-          }),
-        ),
-      ],
+      ),
     );
   }
 
@@ -450,9 +486,19 @@ class BucketDetailScreen extends StatelessWidget {
       itemBuilder: (context, index) {
         final stock = bucket.allocation.keys.elementAt(index);
         final weight = bucket.allocation[stock]! * 100;
-        return ListTile(
-          title: Text(stock),
-          trailing: Text('${weight.toStringAsFixed(2)}%'),
+        return Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            leading: CircleAvatar(
+              child: Text(stock.substring(0, 1)),
+            ),
+            title: Text(stock),
+            trailing: Text(
+              '${weight.toStringAsFixed(2)}%',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
         );
       },
     );

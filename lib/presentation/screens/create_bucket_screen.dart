@@ -100,6 +100,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
         );
 
         await _firestoreService.addBucket(newBucket);
+        if (!mounted) return;
         Navigator.pop(context);
       }
     }
@@ -244,7 +245,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
       decoration: InputDecoration(
         labelText: '$label *',
         labelStyle: TextStyle(
-          color: theme.colorScheme.onSurface.withOpacity(0.7),
+          color: theme.colorScheme.onSurface.withAlpha(178),
         ),
         prefixIcon: Icon(icon, color: theme.colorScheme.primary),
         border: OutlineInputBorder(
@@ -254,7 +255,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.5),
+            color: theme.colorScheme.outline.withAlpha(128),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -262,7 +263,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
           borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(77),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -280,16 +281,16 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
   Widget _buildDropdown() {
     final theme = Theme.of(context);
     return DropdownButtonFormField<String>(
-      value: _rebalanceFrequency,
+      initialValue: _rebalanceFrequency,
       decoration: InputDecoration(
         labelText: 'Rebalance Frequency *',
         labelStyle: TextStyle(
-          color: theme.colorScheme.onSurface.withOpacity(0.7),
+          color: theme.colorScheme.onSurface.withAlpha(178),
         ),
         prefixIcon: Icon(Icons.sync, color: theme.colorScheme.primary),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
-        fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(77),
       ),
       items: ['Annual', 'Quarterly', 'Monthly'].map((item) {
         return DropdownMenuItem(value: item, child: Text(item));
@@ -320,7 +321,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(
-            color: theme.colorScheme.onSurface.withOpacity(0.7),
+            color: theme.colorScheme.onSurface.withAlpha(178),
           ),
           prefixIcon: Icon(
             Icons.calendar_today,
@@ -328,7 +329,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
           ),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
-          fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+          fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(77),
         ),
         child: Text(
           selectedDate != null
@@ -345,7 +346,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withAlpha(77),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -354,7 +355,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
           Text(
             'Volatility: ${_volatility.toStringAsFixed(2)}',
             style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              color: theme.colorScheme.onSurface.withAlpha(178),
             ),
           ),
           Slider(

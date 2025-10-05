@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'dart:math' as math;
 
 import '../widgets/animated_project_card.dart';
 import 'dashboard_screen.dart';
