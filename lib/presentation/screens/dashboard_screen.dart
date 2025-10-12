@@ -25,7 +25,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Timer? _searchDebounce;
   StreamSubscription<User?>? _authSubscription;
 
-  final ValueNotifier<SortOption> _sortOption = ValueNotifier(SortOption.recent);
+  final ValueNotifier<SortOption> _sortOption = ValueNotifier(
+    SortOption.recent,
+  );
   final ValueNotifier<int> _carouselIndex = ValueNotifier(0);
 
   static const int _itemsPerPage = 20;
@@ -80,9 +82,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     Iterable<Bucket> it = allBuckets;
     if (query.isNotEmpty) {
-      it = it.where((b) =>
-          b.name.toLowerCase().contains(query) ||
-          b.description.toLowerCase().contains(query));
+      it = it.where(
+        (b) =>
+            b.name.toLowerCase().contains(query) ||
+            b.description.toLowerCase().contains(query),
+      );
     }
 
     final List<Bucket> filtered = it.toList();
@@ -94,7 +98,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         filtered.sort((a, b) => b.minInvestment.compareTo(a.minInvestment));
         break;
       case SortOption.nameAsc:
-        filtered.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        filtered.sort(
+          (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+        );
         break;
     }
 
@@ -108,8 +114,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Buckets',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+        title: const Text(
+          'All Buckets',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -124,8 +132,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                color: Colors.white),
+            icon: Icon(
+              isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              color: Colors.white,
+            ),
             onPressed: () => themeProvider.toggleTheme(),
             tooltip: 'Toggle Theme',
           ),
@@ -143,8 +153,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           final allBuckets = snapshot.data ?? [];
           final filteredBuckets = _applySearchSortFilter(allBuckets);
-          final endIndex = ((_currentPage + 1) * _itemsPerPage)
-              .clamp(0, filteredBuckets.length);
+          final endIndex = ((_currentPage + 1) * _itemsPerPage).clamp(
+            0,
+            filteredBuckets.length,
+          );
           final displayedBuckets = filteredBuckets.sublist(0, endIndex);
 
           return CustomScrollView(
@@ -169,29 +181,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const SizedBox(height: 12),
                       _MostInvestedSection(buckets: allBuckets),
-                      const SizedBox(height: 12),
-                      if (_user == null)
-                        _UnlockMetricsBanner(
-                            onLoginPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const ProfileScreen()))),
                       const SizedBox(height: 16),
                       ValueListenableBuilder<int>(
                         valueListenable: _carouselIndex,
                         builder: (context, carouselIndex, child) {
                           return _BucketCarousel(
-                              buckets: displayedBuckets,
-                              carouselIndex: carouselIndex,
-                              onPageChanged: (i) => _carouselIndex.value = i);
+                            buckets: displayedBuckets,
+                            carouselIndex: carouselIndex,
+                            onPageChanged: (i) => _carouselIndex.value = i,
+                          );
                         },
                       ),
                       const SizedBox(height: 16),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 4.0),
-                        child: Text('All Buckets',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          'All Buckets',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 8),
                     ],
@@ -199,23 +209,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final bucket = displayedBuckets[index];
-                    return Padding(
-                      key: ValueKey(bucket.id),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 16.0),
-                      child: BucketCard(bucket: bucket),
-                    );
-                  },
-                  childCount: displayedBuckets.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final bucket = displayedBuckets[index];
+                  return Padding(
+                    key: ValueKey(bucket.id),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 16.0,
+                    ),
+                    child: BucketCard(bucket: bucket),
+                  );
+                }, childCount: displayedBuckets.length),
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 16,
+                  ),
                   child: displayedBuckets.length < filteredBuckets.length
                       ? SizedBox(
                           width: double.infinity,
@@ -256,16 +267,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
               icon: const Icon(Icons.person_outline),
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ProfileScreen()));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfileScreen(),
+                  ),
+                );
               },
             ),
             IconButton(
               icon: const Icon(Icons.info_outline),
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const InfoScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const InfoScreen()),
+                );
               },
             ),
           ],
@@ -275,7 +290,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildGreetingRow() {
-    final name = _user?.displayName ?? _user?.email?.split('@').first ?? 'Guest';
+    final name =
+        _user?.displayName ?? _user?.email?.split('@').first ?? 'Guest';
     return Row(
       children: [
         CircleAvatar(
@@ -287,23 +303,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Hi, $name',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Hi, $name',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 2),
               Text(
-                  _user != null
-                      ? 'Welcome back — here are your buckets'
-                      : 'Sign in to unlock personalized metrics',
-                  style: TextStyle(
-                      color: Theme.of(context).textTheme.bodySmall?.color)),
+                _user != null
+                    ? 'Welcome back — here are your buckets'
+                    : 'Sign in to see your buckets',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                ),
+              ),
             ],
           ),
         ),
         if (_user == null)
           ElevatedButton(
-              onPressed: () => Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
-              child: const Text('Login'))
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ),
+            child: const Text('Login'),
+          ),
       ],
     );
   }
@@ -329,7 +355,9 @@ class _SearchAndFilterBar extends StatelessWidget {
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search),
             hintText: 'Search buckets by name or description',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
             isDense: true,
             suffixIcon: controller.text.isNotEmpty
                 ? IconButton(
@@ -344,23 +372,26 @@ class _SearchAndFilterBar extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            Wrap(spacing: 8.0, children: [
-              ChoiceChip(
-                label: const Text('Recent'),
-                selected: sortOption == SortOption.recent,
-                onSelected: (_) => onSortChanged(SortOption.recent),
-              ),
-              ChoiceChip(
-                label: const Text('Min Investment'),
-                selected: sortOption == SortOption.investedDesc,
-                onSelected: (_) => onSortChanged(SortOption.investedDesc),
-              ),
-              ChoiceChip(
-                label: const Text('A → Z'),
-                selected: sortOption == SortOption.nameAsc,
-                onSelected: (_) => onSortChanged(SortOption.nameAsc),
-              ),
-            ]),
+            Wrap(
+              spacing: 8.0,
+              children: [
+                ChoiceChip(
+                  label: const Text('Recent'),
+                  selected: sortOption == SortOption.recent,
+                  onSelected: (_) => onSortChanged(SortOption.recent),
+                ),
+                ChoiceChip(
+                  label: const Text('Min Investment'),
+                  selected: sortOption == SortOption.investedDesc,
+                  onSelected: (_) => onSortChanged(SortOption.investedDesc),
+                ),
+                ChoiceChip(
+                  label: const Text('A → Z'),
+                  selected: sortOption == SortOption.nameAsc,
+                  onSelected: (_) => onSortChanged(SortOption.nameAsc),
+                ),
+              ],
+            ),
           ],
         ),
       ],
@@ -396,36 +427,52 @@ class _MostInvestedSection extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary.withOpacity(0.9),
-                          Theme.of(context)
-                              .colorScheme
-                              .primaryContainer
-                              .withOpacity(0.9)
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight),
+                      colors: [
+                        Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                        Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withOpacity(0.9),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3))
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
                     ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(b.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                      Text(
+                        b.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      Text('Min Investment: ₹${b.minInvestment.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white)),
+                      Text(
+                        'Min Investment: ₹${b.minInvestment.toStringAsFixed(2)}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                       const Spacer(),
                       Row(
                         children: [
                           Expanded(
-                              child: Text(b.description, overflow: TextOverflow.ellipsis, maxLines: 1, style: const TextStyle(color: Colors.white70))),
+                            child: Text(
+                              b.description,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 );
@@ -435,59 +482,16 @@ class _MostInvestedSection extends StatelessWidget {
   }
 }
 
-class _UnlockMetricsBanner extends StatelessWidget {
-  final VoidCallback onLoginPressed;
-
-  const _UnlockMetricsBanner({required this.onLoginPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        gradient: LinearGradient(colors: [
-          theme.colorScheme.primary.withOpacity(0.15),
-          theme.colorScheme.primaryContainer.withOpacity(0.15)
-        ]),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.bar_chart, size: 36),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Unlock all metrics',
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text('Login to see the live performance and returns',
-                    style: theme.textTheme.bodyMedium),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton(
-              onPressed: onLoginPressed, child: const Text('Login'))
-        ],
-      ),
-    );
-  }
-}
-
 class _BucketCarousel extends StatelessWidget {
   final List<Bucket> buckets;
   final int carouselIndex;
   final ValueChanged<int> onPageChanged;
 
-  const _BucketCarousel(
-      {required this.buckets,
-      required this.carouselIndex,
-      required this.onPageChanged});
+  const _BucketCarousel({
+    required this.buckets,
+    required this.carouselIndex,
+    required this.onPageChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -505,14 +509,19 @@ class _BucketCarousel extends StatelessWidget {
             onPageChanged: (index, reason) => onPageChanged(index),
           ),
           items: buckets
-              .map((bucket) =>
-                  Builder(builder: (context) => BucketCard(bucket: bucket)))
+              .map(
+                (bucket) =>
+                    Builder(builder: (context) => BucketCard(bucket: bucket)),
+              )
               .toList(),
         ),
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(buckets.length, (i) => _buildDot(i == carouselIndex)),
+          children: List.generate(
+            buckets.length,
+            (i) => _buildDot(i == carouselIndex),
+          ),
         ),
       ],
     );
