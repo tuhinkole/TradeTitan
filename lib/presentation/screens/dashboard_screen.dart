@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:tradetitan/domain/bucket.dart';
 import 'package:tradetitan/main.dart';
@@ -24,9 +25,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Timer? _searchDebounce;
   StreamSubscription<User?>? _authSubscription;
 
-  final ValueNotifier<SortOption> _sortOption = ValueNotifier(
-    SortOption.recent,
-  );
+  final ValueNotifier<SortOption> _sortOption =
+      ValueNotifier(SortOption.recent);
+  final ValueNotifier<String> _selectedCategory = ValueNotifier('All');
 
   User? _user;
 
@@ -35,9 +36,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _searchController.addListener(_onSearchChanged);
     _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
-      setState(() {
-        _user = user;
-      });
+      if (mounted) {
+        setState(() {
+          _user = user;
+        });
+      }
     });
   }
 
@@ -48,6 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _searchDebounce?.cancel();
     _authSubscription?.cancel();
     _sortOption.dispose();
+    _selectedCategory.dispose();
     super.dispose();
   }
 
@@ -58,126 +62,126 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  Future<void> _addBucket(Bucket bucket) async {
-    await _firestoreService.addBucket(bucket);
-  }
-
-  void _changeSort(SortOption option) {
-    _sortOption.value = option;
-  }
-
-  List<Bucket> _applySearchSortFilter(List<Bucket> allBuckets) {
+  List<Bucket> _applySearchAndFilter(List<Bucket> allBuckets) {
     final query = _searchController.text.trim().toLowerCase();
+    final category = _selectedCategory.value;
 
-    Iterable<Bucket> it = allBuckets;
+    Iterable<Bucket> filtered = allBuckets;
+
+    // Category Filtering
+    switch (category) {
+      case 'Top Gainers':
+        filtered = filtered.where((b) => (b.returns['1Y'] ?? 0) >= 0.15);
+        break;
+      case 'High Growth':
+        filtered = filtered.where((b) => (b.returns['1Y'] ?? 0) >= 0.20);
+        break;
+      case 'Thematic':
+        filtered =
+            filtered.where((b) => b.strategy.toLowerCase().contains('thematic'));
+        break;
+      case 'Low Risk':
+        filtered = filtered.where((b) => b.volatility <= 0.25);
+        break;
+      case 'New':
+        filtered = filtered.where((b) =>
+            b.lastRebalance.isAfter(DateTime.now().subtract(const Duration(days: 30))));
+        break;
+      case 'All':
+      default:
+        // No filter needed for 'All'
+        break;
+    }
+
+    // Search Query Filtering
     if (query.isNotEmpty) {
-      it = it.where(
+      filtered = filtered.where(
         (b) =>
             b.name.toLowerCase().contains(query) ||
             b.description.toLowerCase().contains(query),
       );
     }
 
-    final List<Bucket> filtered = it.toList();
+    // Sorting
+    final List<Bucket> sortedList = filtered.toList();
     switch (_sortOption.value) {
       case SortOption.recent:
-        filtered.sort((a, b) => b.lastRebalance.compareTo(a.lastRebalance));
+        sortedList.sort((a, b) => b.lastRebalance.compareTo(a.lastRebalance));
         break;
       case SortOption.investedDesc:
-        filtered.sort((a, b) => b.minInvestment.compareTo(a.minInvestment));
+        // Assuming you want to sort by minInvestment in descending order
+        sortedList.sort((a, b) => b.minInvestment.compareTo(a.minInvestment));
         break;
       case SortOption.nameAsc:
-        filtered.sort(
+        sortedList.sort(
           (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
         );
         break;
     }
-
-    return filtered;
+    return sortedList;
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
-
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'All Buckets',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () => themeProvider.toggleTheme(),
-            tooltip: 'Toggle Theme',
-          ),
-        ],
-      ),
       body: StreamBuilder<List<Bucket>>(
         stream: _firestoreService.getBuckets(),
         builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
 
           final allBuckets = snapshot.data ?? [];
-          final filteredBuckets = _applySearchSortFilter(allBuckets);
+          final filteredBuckets = _applySearchAndFilter(allBuckets);
 
           return CustomScrollView(
             slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildGreetingRow(),
-                      const SizedBox(height: 12),
-                      ValueListenableBuilder<SortOption>(
-                        valueListenable: _sortOption,
-                        builder: (context, sortOption, child) {
-                          return _SearchAndFilterBar(
-                            controller: _searchController,
-                            sortOption: sortOption,
-                            onSortChanged: _changeSort,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4.0),
-                        child: Text(
-                          'All Buckets',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
+              _HeaderSection(user: _user),
+              const _ExploreSectionHeader(),
+              _ExploreSection(
+                selectedCategory: _selectedCategory,
+                onCategorySelected: (category) {
+                  _selectedCategory.value = category;
+                  setState(() {}); // Re-render the list
+                },
+              ),
+              _AllBucketsHeader(
+                searchController: _searchController,
+                sortNotifier: _sortOption,
+                onSortChanged: (sortOption) {
+                  _sortOption.value = sortOption;
+                  setState(() {}); // Re-render the list
+                },
+                theme: theme,
+              ),
+              if (filteredBuckets.isEmpty)
+                const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 50.0),
+                      child: Text('No buckets found.'),
+                    ),
                   ),
                 ),
-              ),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 350.0, // Make cards smaller
+                    maxCrossAxisExtent: 360.0,
                     mainAxisSpacing: 16.0,
                     crossAxisSpacing: 16.0,
-                    childAspectRatio: 1.4, // Adjust aspect ratio
+                    childAspectRatio: 1.1,
                   ),
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final bucket = filteredBuckets[index];
-                    return BucketCard(bucket: bucket);
-                  }, childCount: filteredBuckets.length),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return BucketCard(bucket: filteredBuckets[index]);
+                    },
+                    childCount: filteredBuckets.length,
+                  ),
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 96)),
@@ -191,9 +195,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             context,
             MaterialPageRoute(builder: (context) => const CreateBucketScreen()),
           );
-
           if (newBucket != null) {
-            await _addBucket(newBucket);
+            await _firestoreService.addBucket(newBucket);
           }
         },
         child: const Icon(Icons.add),
@@ -207,21 +210,234 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             IconButton(
               icon: const Icon(Icons.person_outline),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileScreen(),
-                  ),
-                );
-              },
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              ),
             ),
             IconButton(
               icon: const Icon(Icons.info_outline),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const InfoScreen()),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const InfoScreen()),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderSection extends StatelessWidget {
+  final User? user;
+  const _HeaderSection({this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+    final name =
+        user?.displayName ?? user?.email?.split('@').first ?? 'Investor';
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome, $name',
+                  style: GoogleFonts.poppins(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Find your next winning investment.',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+            IconButton(
+              icon: Icon(
+                isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                color: theme.colorScheme.onSurface,
+              ),
+              onPressed: () => themeProvider.toggleTheme(),
+              tooltip: 'Toggle Theme',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExploreSectionHeader extends StatelessWidget {
+  const _ExploreSectionHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        child: Text(
+          'Explore',
+          style: GoogleFonts.poppins(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExploreSection extends StatelessWidget {
+  final ValueNotifier<String> selectedCategory;
+  final ValueChanged<String> onCategorySelected;
+  final List<String> _categories = [
+    'All',
+    'Top Gainers',
+    'Thematic',
+    'Low Risk',
+    'High Growth',
+    'New'
+  ];
+
+  _ExploreSection({
+    required this.selectedCategory,
+    required this.onCategorySelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 50,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: _categories.length,
+          itemBuilder: (context, index) {
+            final category = _categories[index];
+            return ValueListenableBuilder<String>(
+              valueListenable: selectedCategory,
+              builder: (context, value, child) {
+                final isSelected = category == value;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: ChoiceChip(
+                    label: Text(category),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        onCategorySelected(category);
+                      }
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _AllBucketsHeader extends StatelessWidget {
+  final TextEditingController searchController;
+  final ValueNotifier<SortOption> sortNotifier;
+  final ValueChanged<SortOption> onSortChanged;
+  final ThemeData theme;
+
+  const _AllBucketsHeader({
+    required this.searchController,
+    required this.sortNotifier,
+    required this.onSortChanged,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'All Buckets',
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'Search by name or description',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ValueListenableBuilder<SortOption>(
+              valueListenable: sortNotifier,
+              builder: (context, sortValue, child) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    PopupMenuButton<SortOption>(
+                      onSelected: onSortChanged,
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<SortOption>>[
+                        const PopupMenuItem(
+                          value: SortOption.recent,
+                          child: Text('Most Recent'),
+                        ),
+                        const PopupMenuItem(
+                          value: SortOption.investedDesc,
+                          child: Text('Min. Investment'),
+                        ),
+                        const PopupMenuItem(
+                          value: SortOption.nameAsc,
+                          child: Text('Name (A-Z)'),
+                        ),
+                      ],
+                      child: Row(
+                        children: [
+                          Text(
+                            'Sort by: ${sortValue.name}',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -230,115 +446,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
-  Widget _buildGreetingRow() {
-    final name =
-        _user?.displayName ?? _user?.email?.split('@').first ?? 'Guest';
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 20,
-          child: Text(name.isNotEmpty ? name[0].toUpperCase() : 'G'),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hi, $name',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                _user != null
-                    ? 'Welcome back — here are your buckets'
-                    : 'Sign in to see your buckets',
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (_user == null)
-          ElevatedButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfileScreen()),
-            ),
-            child: const Text('Login'),
-          ),
-      ],
-    );
-  }
 }
 
-class _SearchAndFilterBar extends StatelessWidget {
-  final TextEditingController controller;
-  final SortOption sortOption;
-  final ValueChanged<SortOption> onSortChanged;
+enum SortOption {
+  recent,
+  investedDesc,
+  nameAsc;
 
-  const _SearchAndFilterBar({
-    required this.controller,
-    required this.sortOption,
-    required this.onSortChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
-            hintText: 'Search buckets by name or description',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            isDense: true,
-            suffixIcon: controller.text.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      controller.clear();
-                    },
-                  )
-                : null,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Wrap(
-              spacing: 8.0,
-              children: [
-                ChoiceChip(
-                  label: const Text('Recent'),
-                  selected: sortOption == SortOption.recent,
-                  onSelected: (_) => onSortChanged(SortOption.recent),
-                ),
-                ChoiceChip(
-                  label: const Text('Min Investment'),
-                  selected: sortOption == SortOption.investedDesc,
-                  onSelected: (_) => onSortChanged(SortOption.investedDesc),
-                ),
-                ChoiceChip(
-                  label: const Text('A → Z'),
-                  selected: sortOption == SortOption.nameAsc,
-                  onSelected: (_) => onSortChanged(SortOption.nameAsc),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
+  String get name {
+    switch (this) {
+      case SortOption.recent:
+        return 'Recent';
+      case SortOption.investedDesc:
+        return 'Investment';
+      case SortOption.nameAsc:
+        return 'Name';
+    }
   }
 }
-
-enum SortOption { recent, investedDesc, nameAsc }
