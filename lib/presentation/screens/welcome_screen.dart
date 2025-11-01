@@ -1,9 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
-import '../widgets/animated_project_card.dart';
-import 'dashboard_screen.dart';
+import 'package:tradetitan/presentation/screens/dashboard_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -23,8 +21,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -32,37 +30,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: _navigateToDashboard,
-                child: const Text('Skip', style: TextStyle(color: Colors.grey)),
+                child: Text('Skip', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6))),
               ),
             ),
             Expanded(
               flex: 2,
               child: PageView(
                 controller: _pageController,
-                children: const [
-                  AnimatedProjectCard(
-                    color: Color(0xFFFF7A5A),
-                    icon: Icons.grid_view,
-                    title: 'Dashboard mobile c',
-                    taskCount: 42,
-                    angle: -0.1,
-                    offset: Offset(-20, 0),
+                children: [
+                  _buildWelcomePage(
+                    color: theme.colorScheme.primary,
+                    icon: Icons.dashboard_rounded,
+                    title: 'Manage Your Projects',
                   ),
-                  AnimatedProjectCard(
-                    color: Color(0xFF42A5F5),
-                    icon: Icons.wifi,
-                    title: 'Develop mobile',
-                    taskCount: 35,
-                    angle: 0,
-                    offset: Offset(0, -20),
+                  _buildWelcomePage(
+                    color: theme.colorScheme.secondary,
+                    icon: Icons.insights_rounded,
+                    title: 'Track Your Progress',
                   ),
-                  AnimatedProjectCard(
-                    color: Color(0xFF7E57C2),
-                    icon: Icons.edit,
-                    title: 'A content for mobile app project',
-                    taskCount: 12,
-                    angle: 0.1,
-                    offset: Offset(20, 0),
+                  _buildWelcomePage(
+                    color: theme.colorScheme.tertiary,
+                    icon: Icons.checklist_rtl_rounded,
+                    title: 'Complete Your Tasks',
                   ),
                 ],
               ),
@@ -75,27 +64,25 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text(
-                      'Managing Your Projects is Easy Now',
+                      'Managing Your Projects is Now Easy',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32,
+                      style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey[800],
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     Text(
-                      'Are you tired of mixed projects, we are here for you as hawk workspace, you can relax while we do our job.',
+                      'Simplify your workflow and boost your productivity. Let\'s get started!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                     SmoothPageIndicator(
                       controller: _pageController,
                       count: 3,
-                      effect: const ExpandingDotsEffect(
-                        activeDotColor: Color(0xFF6A1B9A),
+                      effect: ExpandingDotsEffect(
+                        activeDotColor: theme.colorScheme.primary,
                         dotColor: Colors.grey,
                         dotHeight: 8,
                         dotWidth: 8,
@@ -103,18 +90,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     ElevatedButton(
                       onPressed: _navigateToDashboard,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6A1B9A),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 80, vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Get Started',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
+                      child: const Text('Get Started'),
                     ),
                   ],
                 ),
@@ -122,6 +98,36 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomePage({
+    required Color color,
+    required IconData icon,
+    required String title,
+  }) {
+    return Container(
+      margin: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 100, color: color),
+          const SizedBox(height: 24),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }
