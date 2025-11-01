@@ -110,9 +110,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(
-              isDarkMode ? Icons.light_mode : Icons.dark_mode,
-            ),
+            icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => themeProvider.toggleTheme(),
             tooltip: 'Toggle Theme',
           ),
@@ -171,18 +169,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 360.0,
+                    maxCrossAxisExtent: 350.0, // Make cards smaller
                     mainAxisSpacing: 16.0,
                     crossAxisSpacing: 16.0,
-                    childAspectRatio: 1.1,
+                    childAspectRatio: 1.4, // Adjust aspect ratio
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final bucket = filteredBuckets[index];
-                      return BucketCard(bucket: bucket);
-                    },
-                    childCount: filteredBuckets.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final bucket = filteredBuckets[index];
+                    return BucketCard(bucket: bucket);
+                  }, childCount: filteredBuckets.length),
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 96)),

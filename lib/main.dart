@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
-          title: 'Flutter Demo',
+          title: 'Trade Titan',
           theme: ThemeData(
             primarySwatch: Colors.blue,
             scaffoldBackgroundColor: const Color(0xFFF0F4F8),

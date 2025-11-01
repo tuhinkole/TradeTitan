@@ -38,7 +38,9 @@ class BucketCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     final cagr = bucket.returns.containsKey('1Y') ? bucket.returns['1Y'] : null;
-    final cagrText = cagr != null ? '${(cagr * 100).toStringAsFixed(2)}%' : 'N/A';
+    final cagrText = cagr != null
+        ? '${(cagr * 100).toStringAsFixed(2)}%'
+        : 'N/A';
     final cagrColor = _getCagrColor(cagr);
 
     final volatilityColor = _getVolatilityColor(bucket.volatility);
@@ -87,7 +89,9 @@ class BucketCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     bucket.author,
-                    style: theme.textTheme.labelMedium?.copyWith(color: theme.hintColor),
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: const Color.fromARGB(255, 209, 155, 61), // Light Orange
+                    ),
                   ),
                 ],
               ),
@@ -95,7 +99,7 @@ class BucketCard extends StatelessWidget {
               Text(
                 bucket.rationale,
                 style: theme.textTheme.bodyMedium,
-                maxLines: 2,
+                maxLines: 3, // Changed to 3 lines
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 12),
@@ -106,8 +110,18 @@ class BucketCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildStatColumn(context, 'CAGR (1Y)', cagrText, cagrColor),
-                  _buildStatColumn(context, 'Volatility', '${bucket.volatility.toStringAsFixed(2)}%', volatilityColor),
-                  _buildStatColumn(context, 'Min. Invest', '\$${bucket.minInvestment.toStringAsFixed(0)}', theme.colorScheme.primary),
+                  _buildStatColumn(
+                    context,
+                    'Volatility',
+                    '${bucket.volatility.toStringAsFixed(2)}%',
+                    volatilityColor,
+                  ),
+                  _buildStatColumn(
+                    context,
+                    'Min. Invest',
+                    '\$${bucket.minInvestment.toStringAsFixed(0)}',
+                    theme.colorScheme.primary,
+                  ),
                 ],
               ),
             ],
@@ -117,7 +131,12 @@ class BucketCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatColumn(BuildContext context, String title, String value, Color valueColor) {
+  Widget _buildStatColumn(
+    BuildContext context,
+    String title,
+    String value,
+    Color valueColor,
+  ) {
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

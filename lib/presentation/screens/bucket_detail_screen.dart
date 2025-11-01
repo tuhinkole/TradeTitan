@@ -25,7 +25,10 @@ class BucketDetailScreen extends StatelessWidget {
             expandedHeight: 200.0,
             backgroundColor: isDarkMode ? Colors.grey[900] : Colors.deepPurple,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(bucket.name, style: const TextStyle(color: Colors.white)),
+              title: Text(
+                bucket.name,
+                style: const TextStyle(color: Colors.white),
+              ),
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -42,15 +45,23 @@ class BucketDetailScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.show_chart, size: 60, color: Colors.white),
+                      const Icon(
+                        Icons.show_chart,
+                        size: 60,
+                        color: Colors.white,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         bucket.strategy,
-                        style: theme.textTheme.titleMedium?.copyWith(color: Colors.white),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                       Text(
                         'Managed by ${bucket.manager}',
-                        style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white70,
+                        ),
                       ),
                     ],
                   ),
@@ -290,12 +301,19 @@ class BucketDetailScreen extends StatelessWidget {
               showTitles: true,
               reservedSize: 40,
               getTitlesWidget: (value, meta) {
-                return Text('${value.toInt()}', style: const TextStyle(fontSize: 12));
+                return Text(
+                  '${value.toInt()}',
+                  style: const TextStyle(fontSize: 12),
+                );
               },
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(
           show: true,
@@ -367,13 +385,19 @@ class BucketDetailScreen extends StatelessWidget {
                   children: [
                     const Text(
                       'At a Glance',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildGlanceInfo('Stocks', bucket.stockCount.toString()),
+                        _buildGlanceInfo(
+                          'Stocks',
+                          bucket.stockCount.toString(),
+                        ),
                         _buildGlanceInfo(
                           'Rebalance Frequency',
                           bucket.rebalanceFrequency,
@@ -432,7 +456,13 @@ class BucketDetailScreen extends StatelessWidget {
   }
 
   Widget _buildHoldingsDistribution(BuildContext context) {
-    final colors = [Colors.blue, Colors.purple, Colors.orange, Colors.green, Colors.red];
+    final colors = [
+      Colors.blue,
+      Colors.purple,
+      Colors.orange,
+      Colors.green,
+      Colors.red,
+    ];
     final holdings = bucket.holdingsDistribution.entries.toList();
     return Card(
       elevation: 2,
@@ -490,9 +520,7 @@ class BucketDetailScreen extends StatelessWidget {
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: ListTile(
-            leading: CircleAvatar(
-              child: Text(stock.substring(0, 1)),
-            ),
+            leading: CircleAvatar(child: Text(stock.substring(0, 1))),
             title: Text(stock),
             trailing: Text(
               '${weight.toStringAsFixed(2)}%',
