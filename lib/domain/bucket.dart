@@ -16,6 +16,7 @@ class Bucket {
   final DateTime nextRebalance;
   final Map<String, double> holdingsDistribution;
   final String description;
+  final List<String> topStocks;
 
   Bucket({
     this.id = '', // Not required for new buckets
@@ -33,6 +34,7 @@ class Bucket {
     required this.nextRebalance,
     required this.holdingsDistribution,
     this.description = '',
+    this.topStocks = const [],
   });
 
   factory Bucket.fromSnapshot(DocumentSnapshot snapshot) {
@@ -53,6 +55,7 @@ class Bucket {
       nextRebalance: (data['nextRebalance'] as Timestamp?)?.toDate() ?? DateTime.now(),
       holdingsDistribution: Map<String, double>.from(data['holdingsDistribution'] ?? {}),
       description: data['description'] ?? '',
+      topStocks: List<String>.from(data['topStocks'] ?? []),
     );
   }
 
@@ -72,6 +75,7 @@ class Bucket {
       'nextRebalance': nextRebalance,
       'holdingsDistribution': holdingsDistribution,
       'description': description,
+      'topStocks': topStocks,
     };
   }
 }

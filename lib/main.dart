@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tradetitan/presentation/screens/welcome_screen.dart';
+import 'package:tradetitan/presentation/screens/dashboard_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tradetitan/firebase_options.dart';
@@ -82,11 +82,14 @@ class MyApp extends StatelessWidget {
               ),
             ),
             cardTheme: CardThemeData(
-              elevation: 2,
+              elevation: 4,
+              shadowColor: Colors.black.withOpacity(0.1),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade200, width: 1),
               ),
               color: Colors.white,
+              surfaceTintColor: Colors.white,
             ),
           ),
           darkTheme: ThemeData.dark().copyWith(
@@ -134,15 +137,16 @@ class MyApp extends StatelessWidget {
               ),
             ),
             cardTheme: CardThemeData(
-              elevation: 2,
+              elevation: 6,
+              shadowColor: Colors.black.withOpacity(0.4),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
-              color: const Color(0xFF1E1E1E),
+              color: const Color(0xFF2A2A2A),
             ),
           ),
           themeMode: themeProvider.themeMode,
-          home: const WelcomeScreen(),
+          home: const DashboardScreen(),
         );
       },
     );
