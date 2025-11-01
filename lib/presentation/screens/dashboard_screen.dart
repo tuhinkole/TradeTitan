@@ -171,9 +171,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 400.0,
+                    maxCrossAxisExtent: 360.0,
                     mainAxisSpacing: 16.0,
                     crossAxisSpacing: 16.0,
+                    childAspectRatio: 1.1,
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {

@@ -17,6 +17,7 @@ class Bucket {
   final Map<String, double> holdingsDistribution;
   final String description;
   final List<String> topStocks;
+  final String author; // New field
 
   Bucket({
     this.id = '', // Not required for new buckets
@@ -35,6 +36,7 @@ class Bucket {
     required this.holdingsDistribution,
     this.description = '',
     this.topStocks = const [],
+    this.author = 'TradeTitan Team', // Default value
   });
 
   factory Bucket.fromSnapshot(DocumentSnapshot snapshot) {
@@ -56,6 +58,7 @@ class Bucket {
       holdingsDistribution: Map<String, double>.from(data['holdingsDistribution'] ?? {}),
       description: data['description'] ?? '',
       topStocks: List<String>.from(data['topStocks'] ?? []),
+      author: data['author'] ?? 'TradeTitan Team', // Read from snapshot
     );
   }
 
@@ -76,6 +79,7 @@ class Bucket {
       'holdingsDistribution': holdingsDistribution,
       'description': description,
       'topStocks': topStocks,
+      'author': author, // Add to map
     };
   }
 }

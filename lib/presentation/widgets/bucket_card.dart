@@ -19,13 +19,27 @@ class BucketCard extends StatelessWidget {
     }
   }
 
+  // Determines the color based on the CAGR value
+  Color _getCagrColor(double? cagr) {
+    if (cagr == null) {
+      return Colors.blue; // Neutral
+    }
+    if (cagr > 0) {
+      return Colors.green;
+    } else if (cagr < 0) {
+      return Colors.red;
+    } else {
+      return Colors.blue;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final cagrText = bucket.returns.containsKey('1Y') && bucket.returns['1Y'] != null
-        ? '${(bucket.returns['1Y']! * 100).toStringAsFixed(2)}%'
-        : 'N/A';
+    final cagr = bucket.returns.containsKey('1Y') ? bucket.returns['1Y'] : null;
+    final cagrText = cagr != null ? '${(cagr * 100).toStringAsFixed(2)}%' : 'N/A';
+    final cagrColor = _getCagrColor(cagr);
 
     final volatilityColor = _getVolatilityColor(bucket.volatility);
 
@@ -40,34 +54,60 @@ class BucketCard extends StatelessWidget {
       },
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                bucket.name,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      bucket.name,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Icon(
+                    Icons.shopping_basket,
+                    color: _getVolatilityColor(bucket.volatility),
+                    size: 24,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.person_outline, size: 14, color: theme.hintColor),
+                  const SizedBox(width: 4),
+                  Text(
+                    bucket.author,
+                    style: theme.textTheme.labelMedium?.copyWith(color: theme.hintColor),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(
                 bucket.rationale,
                 style: theme.textTheme.bodyMedium,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               StockRow(stocks: bucket.topStocks),
               const Spacer(),
               const Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildStatColumn(context, 'CAGR (1Y)', cagrText, Colors.green),
+                  _buildStatColumn(context, 'CAGR (1Y)', cagrText, cagrColor),
                   _buildStatColumn(context, 'Volatility', '${bucket.volatility.toStringAsFixed(2)}%', volatilityColor),
+                  _buildStatColumn(context, 'Min. Invest', '\$${bucket.minInvestment.toStringAsFixed(0)}', theme.colorScheme.primary),
                 ],
               ),
             ],
@@ -91,6 +131,7 @@ class BucketCard extends StatelessWidget {
           value,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
+            fontSize: 14,
             color: valueColor,
           ),
         ),

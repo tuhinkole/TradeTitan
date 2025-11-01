@@ -20,6 +20,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
   final _managerController = TextEditingController();
   final _rationaleController = TextEditingController();
   final _minInvestmentController = TextEditingController();
+  final _authorController = TextEditingController(); // New controller
 
   // State variables
   String _rebalanceFrequency = 'Annual';
@@ -38,6 +39,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
     _managerController.dispose();
     _rationaleController.dispose();
     _minInvestmentController.dispose();
+    _authorController.dispose(); // Dispose the new controller
     for (var field in _stockFields) {
       (field['symbol'] as TextEditingController).dispose();
       (field['weight'] as TextEditingController).dispose();
@@ -97,6 +99,7 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
           allocation: allocation,
           holdingsDistribution: holdingsDistribution,
           returns: {}, // Typically calculated, not set on creation
+          author: _authorController.text, // Add author
         );
 
         await _firestoreService.addBucket(newBucket);
@@ -154,6 +157,12 @@ class _CreateBucketScreenState extends State<CreateBucketScreen> {
                 controller: _managerController,
                 label: 'Manager',
                 icon: Icons.person_outline,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _authorController, // Add author field
+                label: 'Author',
+                icon: Icons.person_pin_circle_outlined,
               ),
               const SizedBox(height: 16),
               _buildTextField(
